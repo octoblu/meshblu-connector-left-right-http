@@ -28,3 +28,5 @@ node_modules
 deploy
 meshblu.json
 schemas.json
+data.json
+meshblu.json

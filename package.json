@@ -1,0 +1,25 @@
+{
+  "name": "meshblu-connector-left-right-http",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:octoblu/meshblu-connector-left-right-http.git",
+  "author": "sqrtofsaturn <sqrtofsaturn@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "test": "mocha",
+    "test:watch": "mocha --growl --watch"
+  },
+  "dependencies": {
+    "eslint": "^4.0.0",
+    "eslint-plugin-import": "^2.3.0",
+    "lodash": "^4.17.4",
+    "meshblu-firehose-socket.io": "^4.0.0"
+  },
+  "devDependencies": {
+    "chai": "^4.0.2",
+    "mocha": "^3.4.2",
+    "shmock": "^0.8.1",
+    "sinon": "^2.3.5",
+    "sinon-chai": "^2.11.0"
+  }
+}
