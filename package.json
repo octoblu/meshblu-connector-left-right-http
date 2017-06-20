@@ -1,13 +1,13 @@
 {
   "name": "meshblu-connector-left-right-http",
-  "version": "1.0.4",
-  "main": "index.js",
+  "version": "1.0.5",
+  "main": "command.js",
   "repository": "git@github.com:octoblu/meshblu-connector-left-right-http.git",
   "author": "sqrtofsaturn <sqrtofsaturn@gmail.com>",
   "license": "MIT",
   "scripts": {
     "lint": "eslint .",
-    "start": "node index.js",
+    "start": "node command.js",
     "test": "mocha",
     "test:watch": "mocha --growl --watch"
   },
