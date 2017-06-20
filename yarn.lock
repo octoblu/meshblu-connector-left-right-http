@@ -67,7 +67,7 @@ arrify@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/arrify/-/arrify-1.0.1.tgz#898508da2226f380df904728456849c1501a4b0d"
 
-asn1@~0.2.3:
+asn1@0.2.3, asn1@~0.2.3:
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/asn1/-/asn1-0.2.3.tgz#dac8787713c9966849fc8180777ebe9c1ddf3b86"
 
@@ -89,6 +89,12 @@ assert-plus@^0.2.0:
 assertion-error@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/assertion-error/-/assertion-error-1.0.2.tgz#13ca515d86206da0bac66e834dd397d87581094c"
+
+async@^2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/async/-/async-2.4.1.tgz#62a56b279c98a11d0987096a01cc3eeb8eb7bbd7"
+  dependencies:
+    lodash "^4.14.0"
 
 asynckit@^0.4.0:
   version "0.4.0"
@@ -666,15 +672,7 @@ forever-agent@~0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/forever-agent/-/forever-agent-0.6.1.tgz#fbc71f0c41adeb37f96c577ad1ed42d8fdacca91"
 
-form-data@^2.1.1:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/form-data/-/form-data-2.2.0.tgz#9a5e3b9295f980b2623cf64fa238b14cebca707b"
-  dependencies:
-    asynckit "^0.4.0"
-    combined-stream "^1.0.5"
-    mime-types "^2.1.12"
-
-form-data@~2.1.1:
+form-data@^2.1.1, form-data@~2.1.1:
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/form-data/-/form-data-2.1.4.tgz#33c183acf193276ecaa98143a69e94bfee1750d1"
   dependencies:
@@ -993,7 +991,7 @@ json-schema@0.2.3:
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/json-schema/-/json-schema-0.2.3.tgz#b480c892e59a2f05954ce727bd3f2a4e882f9e13"
 
-json-stable-stringify@^1.0.1:
+json-stable-stringify@^1.0.0, json-stable-stringify@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/json-stable-stringify/-/json-stable-stringify-1.0.1.tgz#9a759d39c5f2ff503fd5300646ed445f88c4f9af"
   dependencies:
@@ -1102,7 +1100,7 @@ lodash.keys@^3.0.0:
     lodash.isarguments "^3.0.0"
     lodash.isarray "^3.0.0"
 
-lodash@^4.0.0, lodash@^4.17.2, lodash@^4.17.4, lodash@^4.3.0:
+lodash@^4.0.0, lodash@^4.13.1, lodash@^4.14.0, lodash@^4.17.2, lodash@^4.17.4, lodash@^4.3.0, lodash@^4.6.1:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
 
@@ -1114,6 +1112,20 @@ merge-descriptors@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/merge-descriptors/-/merge-descriptors-0.0.1.tgz#2ff0980c924cf81d0b5d1fb601177cb8bb56c0d0"
 
+meshblu-config@^8.0.1:
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/meshblu-config/-/meshblu-config-8.0.1.tgz#eaf09500e034401f9d8fc1ad26ea7d6ae0d9eba7"
+  dependencies:
+    lodash "^4.17.4"
+    meshblu-encryption "^3.0.1"
+
+meshblu-encryption@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/meshblu-encryption/-/meshblu-encryption-3.0.1.tgz#490647a933973a2e8f4e3513b069b8ff487df510"
+  dependencies:
+    lodash "^4.6.1"
+    node-rsa "^0.4.2"
+
 meshblu-firehose-socket.io@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/meshblu-firehose-socket.io/-/meshblu-firehose-socket.io-4.0.0.tgz#638d73a9e7c51345bf1179ddf146aa15bbc2bec8"
@@ -1124,6 +1136,17 @@ meshblu-firehose-socket.io@^4.0.0:
     lodash "^4.17.4"
     socket.io-client "^1.7.2"
     srv-failover "^1.3.0"
+
+meshblu-http@^10.0.4:
+  version "10.0.4"
+  resolved "https://registry.yarnpkg.com/meshblu-http/-/meshblu-http-10.0.4.tgz#9d4c1072605768b4e1c1f610af882bb5b1854561"
+  dependencies:
+    debug "^2.6.8"
+    json-stable-stringify "^1.0.0"
+    lodash "^4.13.1"
+    node-rsa "^0.4.2"
+    request "^2.81.0"
+    srv-failover "^2.0.0"
 
 methods@0.1.0, methods@~0.1.0:
   version "0.1.0"
@@ -1225,6 +1248,12 @@ natural-compare@^1.4.0:
 negotiator@0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.3.0.tgz#706d692efeddf574d57ea9fb1ab89a4fa7ee8f60"
+
+node-rsa@^0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/node-rsa/-/node-rsa-0.4.2.tgz#d6391729ec16a830ed5a38042b3157d2d5d72530"
+  dependencies:
+    asn1 "0.2.3"
 
 normalize-package-data@^2.3.2:
   version "2.3.8"
@@ -1645,6 +1674,13 @@ srv-failover@^1.3.0:
   resolved "https://registry.yarnpkg.com/srv-failover/-/srv-failover-1.3.1.tgz#c564ff88538d10761acc0c0b4dcbef9ec555d181"
   dependencies:
     coffee-script "^1.12.4"
+    http-dns "^3.0.1"
+    lodash "^4.17.4"
+
+srv-failover@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/srv-failover/-/srv-failover-2.0.0.tgz#cb5e6233e587e774356861c3d4e480b77c82756b"
+  dependencies:
     http-dns "^3.0.1"
     lodash "^4.17.4"
 

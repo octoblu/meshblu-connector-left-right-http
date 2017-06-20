@@ -1,3 +1,5 @@
+const async = require('async')
+const debug = require('debug')('meshblu-connector-left-right-http')
 const bindAll = require('lodash/fp/bindAll')
 const get = require('lodash/fp/get')
 const isEmpty = require('lodash/fp/isEmpty')
@@ -9,50 +11,57 @@ const PATHS = {
 }
 
 class Connector {
-  constructor({ meshbluHttp, meshbluFirehose, targetURL, uuid }) {
+  constructor({ meshbluHttp, meshbluFirehose }) {
     bindAll(Object.getOwnPropertyNames(Connector.prototype), this)
 
     this.meshbluHttp = meshbluHttp
     this.meshbluFirehose = meshbluFirehose
-    this.uuid = uuid
-    this.targetURL = targetURL
   }
 
   run(callback) {
     this.meshbluFirehose.on('message', this._onMessage)
+    this.meshbluFirehose.connect()
 
-    this._subscribeToSelf((error) => {
-      if (error) return callback(error)
-      this._subscribeToButton(callback)
-    })
+    async.series([
+      this._retrieveSelf,
+      this._subscribeToButton,
+      this._subscribeToSelf,
+    ], callback)
   }
 
   _onMessage(message) {
-    const action = get('data.action', message)
+    const action = get('data.data.action', message)
     const uri = PATHS[action]
+    const baseUrl = get('options.apiURL', this.device)
+    debug('_onMessage', JSON.stringify({ action, baseUrl, uri }, null, 2))
     if (isEmpty(uri)) return
 
-    return request.post({ baseUrl: this.targetURL, uri })
+    return request.post({ baseUrl, uri })
+  }
+
+  _retrieveSelf(callback) {
+    this.meshbluHttp.whoami((error, device) => {
+      if (error) return callback(error)
+      this.device = device
+      callback()
+    })
   }
 
   _subscribeToButton(callback) {
-    this.meshbluHttp.whoami((error, me) => {
-      if (error) return callback(error)
-      const buttonId = get('options.buttonId', me)
-      if (isEmpty(buttonId)) return callback()
+    const buttonId = get('options.buttonId', this.device)
+    if (isEmpty(buttonId)) return callback()
 
-      this.meshbluHttp.createSubscription({
-        subscriberUuid: this.uuid,
-        emitterUuid: buttonId,
-        type: 'broadcast.sent',
-      }, callback)
-    })
+    this.meshbluHttp.createSubscription({
+      subscriberUuid: get('uuid', this.device),
+      emitterUuid: buttonId,
+      type: 'broadcast.sent',
+    }, callback)
   }
 
   _subscribeToSelf(callback) {
     this.meshbluHttp.createSubscription({
-      subscriberUuid: this.uuid,
-      emitterUuid: this.uuid,
+      subscriberUuid: get('uuid', this.device),
+      emitterUuid: get('uuid', this.device),
       type: 'broadcast.received',
     }, callback)
   }

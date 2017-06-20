@@ -11,11 +11,10 @@ describe('Connector', function() {
     this.api = shmock()
     this.meshbluHttp = {}
     this.meshbluFirehose = new EventEmitter()
+    this.meshbluFirehose.connect = sinon.stub()
     this.sut = new Connector({
       meshbluHttp: this.meshbluHttp,
       meshbluFirehose: this.meshbluFirehose,
-      targetURL: `http://localhost:${this.api.address().port}`,
-      uuid: 'connector-uuid',
      })
   })
 
@@ -30,7 +29,7 @@ describe('Connector', function() {
   describe('->run', function(){
     describe('when there are no options', function(){
       beforeEach('call run', function(done){
-        this.meshbluHttp.whoami = sinon.stub().yields(null, { })
+        this.meshbluHttp.whoami = sinon.stub().yields(null, { uuid: 'connector-uuid' })
         this.meshbluHttp.createSubscription = sinon.stub().yields()
         this.sut.run(done)
       })
@@ -46,11 +45,15 @@ describe('Connector', function() {
       it('should not create a broadcast.sent subscription to the button-id', function(){
         expect(this.meshbluHttp.createSubscription).to.have.been.calledOnce
       })
+
+      it('should call meshbluFirehose.connect', function(){
+        expect(this.meshbluFirehose.connect).to.have.been.called
+      })
     })
 
     describe('when given a buttonId', function(){
       beforeEach('call run', function(done){
-        this.meshbluHttp.whoami = sinon.stub().yields(null, { options: { buttonId: 'button-id' } })
+        this.meshbluHttp.whoami = sinon.stub().yields(null, { uuid: 'connector-uuid', options: { buttonId: 'button-id' } })
         this.meshbluHttp.createSubscription = sinon.stub().yields()
         this.sut.run(done)
       })
@@ -73,48 +76,63 @@ describe('Connector', function() {
     })
 
     describe('when a rotateRight broadcast message comes in through the firehose', function(){
-      beforeEach('setup <targetURL>/next endpoint and call run', function(done){
+      beforeEach('setup <apiURL>/next endpoint and call run', function(done){
         this.apiNext = this.api.post('/next').reply(204)
-        this.meshbluHttp.whoami = sinon.stub().yields(null, { })
+        this.meshbluHttp.whoami = sinon.stub().yields(null, {
+          uuid: 'connector-uuid',
+          options: {
+            apiURL: `http://localhost:${this.api.address().port}`,
+          },
+        })
         this.meshbluHttp.createSubscription = sinon.stub().yields()
         this.sut.run(done)
       })
 
       beforeEach('emit rotateRight', function(){
-        this.meshbluFirehose.emit('message', { data: { action: 'rotateRight' } })
+        this.meshbluFirehose.emit('message', { data: { data: { action: 'rotateRight' } } })
       })
 
-      it('should call <targetURL>/next', function(done){
+      it('should call <apiURL>/next', function(done){
         this.apiNext.wait(1000, done)
       })
     })
 
     describe('when a rotateLeft broadcast message comes in through the firehose', function(){
-      beforeEach('setup <targetURL>/previous endpoint and call run', function(done){
+      beforeEach('setup <apiURL>/previous endpoint and call run', function(done){
         this.apiPrevious = this.api.post('/previous').reply(204)
-        this.meshbluHttp.whoami = sinon.stub().yields(null, { })
+        this.meshbluHttp.whoami = sinon.stub().yields(null, {
+          uuid: 'connector-uuid',
+          options: {
+            apiURL: `http://localhost:${this.api.address().port}`,
+          },
+        })
         this.meshbluHttp.createSubscription = sinon.stub().yields()
         this.sut.run(done)
       })
 
       beforeEach('emit rotateLeft', function(){
-        this.meshbluFirehose.emit('message', { data: { action: 'rotateLeft' } })
+        this.meshbluFirehose.emit('message', { data: { data: { action: 'rotateLeft' } } })
       })
 
-      it('should call <targetURL>/next', function(done){
+      it('should call <apiURL>/next', function(done){
         this.apiPrevious.wait(1000, done)
       })
     })
 
     describe('when a click broadcast message comes in through the firehose', function(){
       beforeEach('call run', function(done){
-        this.meshbluHttp.whoami = sinon.stub().yields(null, { })
+        this.meshbluHttp.whoami = sinon.stub().yields(null, {
+          uuid: 'connector-uuid',
+          options: {
+            apiURL: `http://localhost:${this.api.address().port}`,
+          },
+        })
         this.meshbluHttp.createSubscription = sinon.stub().yields()
         this.sut.run(done)
       })
 
       beforeEach('emit rotateLeft', function(){
-        this.meshbluFirehose.emit('message', { data: { action: 'click' } })
+        this.meshbluFirehose.emit('message', { data: { data: { action: 'click' } } })
       })
 
       it('should not call the api', function(){
