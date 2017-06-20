@@ -1,6 +1,6 @@
 {
   "name": "meshblu-connector-left-right-http",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "repository": "git@github.com:octoblu/meshblu-connector-left-right-http.git",
   "author": "sqrtofsaturn <sqrtofsaturn@gmail.com>",
