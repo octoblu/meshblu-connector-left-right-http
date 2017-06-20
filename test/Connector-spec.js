@@ -1,8 +1,8 @@
-const { afterEach, beforeEach, describe, it } = global
-const { expect }       = require('chai')
+// const { afterEach, beforeEach, describe, it } = global
+const { expect } = require('chai')
 const { EventEmitter } = require('events')
-const shmock           = require('shmock')
-const sinon            = require('sinon')
+const shmock = require('shmock')
+const sinon = require('sinon')
 
 const Connector = require('../src/Connector')
 
@@ -86,6 +86,38 @@ describe('Connector', function() {
 
       it('should call <targetURL>/next', function(done){
         this.apiNext.wait(1000, done)
+      })
+    })
+
+    describe('when a rotateLeft broadcast message comes in through the firehose', function(){
+      beforeEach('setup <targetURL>/previous endpoint and call run', function(done){
+        this.apiPrevious = this.api.post('/previous').reply(204)
+        this.meshbluHttp.whoami = sinon.stub().yields(null, { })
+        this.meshbluHttp.createSubscription = sinon.stub().yields()
+        this.sut.run(done)
+      })
+
+      beforeEach('emit rotateLeft', function(){
+        this.meshbluFirehose.emit('message', { data: { action: 'rotateLeft' } })
+      })
+
+      it('should call <targetURL>/next', function(done){
+        this.apiPrevious.wait(1000, done)
+      })
+    })
+
+    describe('when a click broadcast message comes in through the firehose', function(){
+      beforeEach('call run', function(done){
+        this.meshbluHttp.whoami = sinon.stub().yields(null, { })
+        this.meshbluHttp.createSubscription = sinon.stub().yields()
+        this.sut.run(done)
+      })
+
+      beforeEach('emit rotateLeft', function(){
+        this.meshbluFirehose.emit('message', { data: { action: 'click' } })
+      })
+
+      it('should not call the api', function(){
       })
     })
   })

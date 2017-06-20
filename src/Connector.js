@@ -3,6 +3,11 @@ const get = require('lodash/fp/get')
 const isEmpty = require('lodash/fp/isEmpty')
 const request = require('request')
 
+const PATHS = {
+  rotateLeft: '/previous',
+  rotateRight: '/next',
+}
+
 class Connector {
   constructor({ meshbluHttp, meshbluFirehose, targetURL, uuid }) {
     bindAll(Object.getOwnPropertyNames(Connector.prototype), this)
@@ -22,8 +27,12 @@ class Connector {
     })
   }
 
-  _onMessage() {
-    request.post({baseUrl: this.targetURL, uri: '/next'})
+  _onMessage(message) {
+    const action = get('data.action', message)
+    const uri = PATHS[action]
+    if (isEmpty(uri)) return
+
+    return request.post({ baseUrl: this.targetURL, uri })
   }
 
   _subscribeToButton(callback) {
@@ -47,8 +56,6 @@ class Connector {
       type: 'broadcast.received',
     }, callback)
   }
-
-
 }
 
 module.exports = Connector
