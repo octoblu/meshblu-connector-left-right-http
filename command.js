@@ -1,3 +1,4 @@
+const child_process = require('child_process')
 const MeshbluConfig = require('meshblu-config')
 const MeshbluFirehose = require('meshblu-firehose-socket.io')
 const MeshbluHttp = require('meshblu-http')
@@ -8,7 +9,7 @@ class Command {
     const meshbluConfig = new MeshbluConfig()
     const meshbluFirehose = new MeshbluFirehose({ meshbluConfig: meshbluConfig.toJSON() })
     const meshbluHttp = new MeshbluHttp(meshbluConfig.toJSON())
-    this.connector = new Connector({ meshbluHttp, meshbluFirehose })
+    this.connector = new Connector({ child_process, meshbluHttp, meshbluFirehose })
   }
 
   static panic(error) {
