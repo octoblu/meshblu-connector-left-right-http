@@ -11,9 +11,10 @@ const PATHS = {
 }
 
 class Connector {
-  constructor({ meshbluHttp, meshbluFirehose }) {
+  constructor({ child_process, meshbluHttp, meshbluFirehose }) {
     bindAll(Object.getOwnPropertyNames(Connector.prototype), this)
 
+    this.child_process = child_process
     this.meshbluHttp = meshbluHttp
     this.meshbluFirehose = meshbluFirehose
   }
@@ -33,10 +34,12 @@ class Connector {
     const action = get('data.data.action', message)
     const uri = PATHS[action]
     const baseUrl = get('options.apiURL', this.device)
-    debug('_onMessage', JSON.stringify({ action, baseUrl, uri }, null, 2))
-    if (isEmpty(uri)) return
 
-    return request.post({ baseUrl, uri })
+    debug('_onMessage', JSON.stringify({ action, baseUrl, uri }, null, 2))
+    if (!isEmpty(uri)) return request.post({ baseUrl, uri })
+
+    const command = get(`options.commands.${action}`, this.device)
+    if (!isEmpty(command)) return this.child_process.exec(command)
   }
 
   _retrieveSelf(callback) {

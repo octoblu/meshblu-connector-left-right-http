@@ -9,10 +9,12 @@ const Connector = require('../src/Connector')
 describe('Connector', function() {
   beforeEach('Instantiate the Connector', function(){
     this.api = shmock()
+    this.child_process = {}
     this.meshbluHttp = {}
     this.meshbluFirehose = new EventEmitter()
     this.meshbluFirehose.connect = sinon.stub()
     this.sut = new Connector({
+      child_process: this.child_process,
       meshbluHttp: this.meshbluHttp,
       meshbluFirehose: this.meshbluFirehose,
      })
@@ -136,6 +138,56 @@ describe('Connector', function() {
       })
 
       it('should not call the api', function(){
+      })
+    })
+
+    describe('when a startSkype direct message comes in through the firehose', function(){
+      beforeEach('call run', function(done){
+        this.child_process.exec = sinon.stub()
+        this.meshbluHttp.whoami = sinon.stub().yields(null, {
+          uuid: 'connector-uuid',
+          options: {
+            apiURL: `http://localhost:${this.api.address().port}`,
+            commands: {
+              startSkype: 'echo "foooo"'
+            }
+          },
+        })
+        this.meshbluHttp.createSubscription = sinon.stub().yields()
+        this.sut.run(done)
+      })
+
+      beforeEach('emit startSkype', function(){
+        this.meshbluFirehose.emit('message', { data: { data: { action: 'startSkype' } } })
+      })
+
+      it('should run the startSkype command', function(){
+        expect(this.child_process.exec).to.have.been.calledWith('echo "foooo"')
+      })
+    })
+
+    describe('when an endSkype direct message comes in through the firehose', function(){
+      beforeEach('call run', function(done){
+        this.child_process.exec = sinon.stub()
+        this.meshbluHttp.whoami = sinon.stub().yields(null, {
+          uuid: 'connector-uuid',
+          options: {
+            apiURL: `http://localhost:${this.api.address().port}`,
+            commands: {
+              endSkype: 'echo "baaar"'
+            }
+          },
+        })
+        this.meshbluHttp.createSubscription = sinon.stub().yields()
+        this.sut.run(done)
+      })
+
+      beforeEach('emit endSkype', function(){
+        this.meshbluFirehose.emit('message', { data: { data: { action: 'endSkype' } } })
+      })
+
+      it('should run the endSkype command', function(){
+        expect(this.child_process.exec).to.have.been.calledWith('echo "baaar"')
       })
     })
   })
