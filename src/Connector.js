@@ -26,7 +26,8 @@ class Connector {
     async.series([
       this._retrieveSelf,
       this._subscribeToButton,
-      this._subscribeToSelf,
+      this._subscribeToSelfBroadcastReceived,
+      this._subscribeToSelfMessageReceived,
     ], callback)
   }
 
@@ -61,11 +62,19 @@ class Connector {
     }, callback)
   }
 
-  _subscribeToSelf(callback) {
+  _subscribeToSelfBroadcastReceived(callback) {
     this.meshbluHttp.createSubscription({
       subscriberUuid: get('uuid', this.device),
       emitterUuid: get('uuid', this.device),
       type: 'broadcast.received',
+    }, callback)
+  }
+
+  _subscribeToSelfMessageReceived(callback) {
+    this.meshbluHttp.createSubscription({
+      subscriberUuid: get('uuid', this.device),
+      emitterUuid: get('uuid', this.device),
+      type: 'message.received',
     }, callback)
   }
 }

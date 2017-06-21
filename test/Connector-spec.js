@@ -44,8 +44,16 @@ describe('Connector', function() {
         })
       })
 
+      it('should create a message.received subscription to itself', function(){
+        expect(this.meshbluHttp.createSubscription).to.have.been.calledWith({
+          subscriberUuid: 'connector-uuid',
+          emitterUuid: 'connector-uuid',
+          type: 'message.received',
+        })
+      })
+
       it('should not create a broadcast.sent subscription to the button-id', function(){
-        expect(this.meshbluHttp.createSubscription).to.have.been.calledOnce
+        expect(this.meshbluHttp.createSubscription).to.have.been.calledTwice
       })
 
       it('should call meshbluFirehose.connect', function(){
