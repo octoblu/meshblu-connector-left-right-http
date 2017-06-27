@@ -1,6 +1,6 @@
 {
   "name": "meshblu-connector-left-right-http",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "main": "command.js",
   "repository": "git@github.com:octoblu/meshblu-connector-left-right-http.git",
   "author": "sqrtofsaturn <sqrtofsaturn@gmail.com>",
@@ -25,6 +25,7 @@
     "eslint": "^4.0.0",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.3.0",
+    "eslint-plugin-node": "^5.1.0",
     "mocha": "^3.4.2",
     "shmock": "^0.8.1",
     "sinon": "^2.3.5",

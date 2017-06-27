@@ -1,81 +1,37 @@
 const async = require('async')
-const debug = require('debug')('meshblu-connector-left-right-http')
 const bindAll = require('lodash/fp/bindAll')
-const get = require('lodash/fp/get')
-const isEmpty = require('lodash/fp/isEmpty')
-const request = require('request')
 
-const PATHS = {
-  rotateLeft: '/previous',
-  rotateRight: '/next',
-}
+const Minimizer = require('./Minimizer')
+const Rotator = require('./Rotator')
 
 class Connector {
   constructor({ child_process, meshbluHttp, meshbluFirehose }) {
     bindAll(Object.getOwnPropertyNames(Connector.prototype), this)
 
-    this.child_process = child_process
+    if (!child_process) throw new Error('Missing required parameter: child_process') // eslint-disable-line camelcase
+    if (!meshbluFirehose) throw new Error('Missing required parameter: meshbluFirehose')
+    if (!meshbluHttp) throw new Error('Missing required parameter: meshbluHttp')
+
+    this.child_process = child_process // eslint-disable-line camelcase
     this.meshbluHttp = meshbluHttp
     this.meshbluFirehose = meshbluFirehose
   }
 
   run(callback) {
-    this.meshbluFirehose.on('message', this._onMessage)
-    this.meshbluFirehose.connect()
+    const { child_process, meshbluFirehose, meshbluHttp } = this
 
-    async.series([
-      this._retrieveSelf,
-      this._subscribeToButton,
-      this._subscribeToSelfBroadcastReceived,
-      this._subscribeToSelfMessageReceived,
-    ], callback)
-  }
+    meshbluFirehose.connect()
+    meshbluHttp.whoami((error, device) => {
+      if (error) return callback
 
-  _onMessage(message) {
-    const action = get('data.data.action', message)
-    const uri = PATHS[action]
-    const baseUrl = get('options.apiURL', this.device)
+      const minimizer = new Minimizer({ child_process, device, meshbluFirehose, meshbluHttp })
+      const rotator = new Rotator({ device, meshbluFirehose, meshbluHttp })
 
-    debug('_onMessage', JSON.stringify({ action, baseUrl, uri }, null, 2))
-    if (!isEmpty(uri)) return request.post({ baseUrl, uri })
-
-    const command = get(`options.commands.${action}`, this.device)
-    if (!isEmpty(command)) return this.child_process.exec(command)
-  }
-
-  _retrieveSelf(callback) {
-    this.meshbluHttp.whoami((error, device) => {
-      if (error) return callback(error)
-      this.device = device
-      callback()
+      async.parallel([
+        minimizer.run,
+        rotator.run,
+      ], callback)
     })
-  }
-
-  _subscribeToButton(callback) {
-    const buttonId = get('options.buttonId', this.device)
-    if (isEmpty(buttonId)) return callback()
-
-    this.meshbluHttp.createSubscription({
-      subscriberUuid: get('uuid', this.device),
-      emitterUuid: buttonId,
-      type: 'broadcast.sent',
-    }, callback)
-  }
-
-  _subscribeToSelfBroadcastReceived(callback) {
-    this.meshbluHttp.createSubscription({
-      subscriberUuid: get('uuid', this.device),
-      emitterUuid: get('uuid', this.device),
-      type: 'broadcast.received',
-    }, callback)
-  }
-
-  _subscribeToSelfMessageReceived(callback) {
-    this.meshbluHttp.createSubscription({
-      subscriberUuid: get('uuid', this.device),
-      emitterUuid: get('uuid', this.device),
-      type: 'message.received',
-    }, callback)
   }
 }
 

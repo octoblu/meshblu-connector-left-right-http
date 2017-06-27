@@ -1,4 +1,4 @@
-const child_process = require('child_process')
+const child_process = require('child_process') // eslint-disable-line camelcase
 const MeshbluConfig = require('meshblu-config')
 const MeshbluFirehose = require('meshblu-firehose-socket.io')
 const MeshbluHttp = require('meshblu-http')
