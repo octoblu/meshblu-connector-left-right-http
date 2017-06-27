@@ -1,63 +1,37 @@
-const async = require('async')
 const debug = require('debug')('meshblu-connector-left-right-http:Rotator')
 const bindAll = require('lodash/fp/bindAll')
 const get = require('lodash/fp/get')
 const isEmpty = require('lodash/fp/isEmpty')
 const request = require('request')
-
-const PATHS = {
-  rotateLeft: '/previous',
-  rotateRight: '/next',
-}
+const WebSocket = require('ws')
 
 class Rotator {
-  constructor({ device, meshbluFirehose, meshbluHttp }) {
+  constructor({ urls, websocketUrl }) {
     bindAll(Object.getOwnPropertyNames(Rotator.prototype), this)
 
-    if (!device) throw new Error('Missing required parameter: device')
-    if (!meshbluFirehose) throw new Error('Missing required parameter: meshbluFirehose')
-    if (!meshbluHttp) throw new Error('Missing required parameter: meshbluHttp')
+    if (!urls) throw new Error('Missing required parameter: urls')
+    if (!websocketUrl) throw new Error('Missing required parameter: websocketUrl')
 
-    this.device = device
-    this.meshbluFirehose = meshbluFirehose
-    this.meshbluHttp = meshbluHttp
+    this.urls = urls
+    this.websocketUrl = websocketUrl
   }
 
   run(callback) {
-    this.meshbluFirehose.on('message', this._onMessage)
-    async.parallel([
-      this._subscribeToButton,
-      this._subscribeToSelfBroadcastReceived,
-    ], callback)
+    const ws = new WebSocket(this.websocketUrl)
+    ws.on('message', this._onMessage)
+    ws.on('open', callback)
   }
 
-  _onMessage(message) {
-    const action = get('data.data.action', message)
-    const uri = PATHS[action]
-    const baseUrl = get('options.apiURL', this.device)
+  //
+  _onMessage(rawMessage) {
+    const message = JSON.parse(rawMessage)
+    debug('_onMessage', message)
+    const action = get('data.action', message)
+    const uri = this.urls[action]
 
     if (isEmpty(uri)) return
-    debug('_onMessage', JSON.stringify({ action, baseUrl, uri }, null, 2))
-    request.post({ baseUrl, uri })
-  }
-
-  _subscribeToButton(callback) {
-    const buttonId = get('options.buttonId', this.device)
-    if (isEmpty(buttonId)) return callback()
-
-    this.meshbluHttp.createSubscription({
-      subscriberUuid: this.device.uuid,
-      emitterUuid: buttonId,
-      type: 'broadcast.sent',
-    }, callback)
-  }
-
-  _subscribeToSelfBroadcastReceived(callback) {
-    this.meshbluHttp.createSubscription({
-      subscriberUuid: this.device.uuid,
-      emitterUuid: this.device.uuid,
-      type: 'broadcast.received',
-    }, callback)
+    debug('_onMessage', uri)
+    request.post(uri)
   }
 }
 

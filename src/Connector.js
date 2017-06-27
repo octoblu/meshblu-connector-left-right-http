@@ -1,5 +1,6 @@
 const async = require('async')
 const bindAll = require('lodash/fp/bindAll')
+const getOr = require('lodash/fp/getOr')
 
 const Minimizer = require('./Minimizer')
 const Rotator = require('./Rotator')
@@ -18,20 +19,35 @@ class Connector {
   }
 
   run(callback) {
-    const { child_process, meshbluFirehose, meshbluHttp } = this
-
-    meshbluFirehose.connect()
-    meshbluHttp.whoami((error, device) => {
+    this.meshbluFirehose.connect()
+    this.meshbluHttp.whoami((error, device) => {
       if (error) return callback
 
-      const minimizer = new Minimizer({ child_process, device, meshbluFirehose, meshbluHttp })
-      const rotator = new Rotator({ device, meshbluFirehose, meshbluHttp })
-
       async.parallel([
-        minimizer.run,
-        rotator.run,
+        async.apply(this._startMinimizer, device),
+        async.apply(this._startRotator, device),
       ], callback)
     })
+  }
+
+  _startMinimizer(device, callback) {
+    const { child_process, meshbluFirehose, meshbluHttp } = this
+    const { commands } = getOr({}, 'options', device)
+    const deviceId = device.uuid
+
+    if (!commands) return callback()
+
+    const minimizer = new Minimizer({ child_process, commands, deviceId, meshbluFirehose, meshbluHttp })
+    minimizer.run(callback)
+  }
+
+  _startRotator(device, callback) {
+    const { buttonUrl, rotatorUrls } = getOr({}, 'options', device)
+
+    if (!buttonUrl || !rotatorUrls) return callback()
+
+    const rotator = new Rotator({ urls: rotatorUrls, websocketUrl: buttonUrl })
+    rotator.run(callback)
   }
 }
 

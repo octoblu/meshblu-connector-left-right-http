@@ -2,12 +2,26 @@
 const { afterEach, beforeEach, describe, it } = global
 const { expect } = require('chai')
 const { EventEmitter } = require('events')
+const portfinder = require('portfinder')
 const shmock = require('shmock')
 const sinon = require('sinon')
+const WebSocket = require('ws')
 
 const Connector = require('../src/Connector')
 
 describe('Connector', function() {
+  beforeEach('find a free port', function(done) {
+    portfinder.getPort((error, port) => {
+      if (error) return done(error)
+      this.websocketPort = port
+      return done()
+    })
+  })
+
+  beforeEach('Start the websocket server', function(done) {
+    this.wss = new WebSocket.Server({ port: this.websocketPort }, done)
+  })
+
   beforeEach('Instantiate the Connector', function() {
     this.api = shmock()
     this.child_process = {}
@@ -21,7 +35,11 @@ describe('Connector', function() {
     })
   })
 
-  afterEach('stop api', function(done) {
+  afterEach('close the websocket server', function(done) {
+    this.wss.close(done)
+  })
+
+  afterEach('close the api server', function(done) {
     this.api.close(done)
   })
 
@@ -33,120 +51,11 @@ describe('Connector', function() {
     describe('when there are no options', function() {
       beforeEach('call run', function(done) {
         this.meshbluHttp.whoami = sinon.stub().yields(null, { uuid: 'connector-uuid' })
-        this.meshbluHttp.createSubscription = sinon.stub().yields()
         this.sut.run(done)
-      })
-
-      it('should create a broadcast.received subscription to itself', function() {
-        expect(this.meshbluHttp.createSubscription).to.have.been.calledWith({
-          subscriberUuid: 'connector-uuid',
-          emitterUuid: 'connector-uuid',
-          type: 'broadcast.received',
-        })
-      })
-
-      it('should create a message.received subscription to itself', function() {
-        expect(this.meshbluHttp.createSubscription).to.have.been.calledWith({
-          subscriberUuid: 'connector-uuid',
-          emitterUuid: 'connector-uuid',
-          type: 'message.received',
-        })
-      })
-
-      it('should not create a broadcast.sent subscription to the button-id', function() {
-        expect(this.meshbluHttp.createSubscription).to.have.been.calledTwice
       })
 
       it('should call meshbluFirehose.connect', function() {
         expect(this.meshbluFirehose.connect).to.have.been.called
-      })
-    })
-
-    describe('when given a buttonId', function() {
-      beforeEach('call run', function(done) {
-        this.meshbluHttp.whoami = sinon.stub().yields(null, { uuid: 'connector-uuid', options: { buttonId: 'button-id' } })
-        this.meshbluHttp.createSubscription = sinon.stub().yields()
-        this.sut.run(done)
-      })
-
-      it('should create a broadcast.received subscription to itself', function() {
-        expect(this.meshbluHttp.createSubscription).to.have.been.calledWith({
-          subscriberUuid: 'connector-uuid',
-          emitterUuid: 'connector-uuid',
-          type: 'broadcast.received',
-        })
-      })
-
-      it('should create a broadcast.sent subscription to the button-id', function() {
-        expect(this.meshbluHttp.createSubscription).to.have.been.calledWith({
-          subscriberUuid: 'connector-uuid',
-          emitterUuid: 'button-id',
-          type: 'broadcast.sent',
-        })
-      })
-    })
-
-    describe('when a rotateRight broadcast message comes in through the firehose', function() {
-      beforeEach('setup <apiURL>/next endpoint and call run', function(done) {
-        this.apiNext = this.api.post('/next').reply(204)
-        this.meshbluHttp.whoami = sinon.stub().yields(null, {
-          uuid: 'connector-uuid',
-          options: {
-            apiURL: `http://localhost:${this.api.address().port}`,
-          },
-        })
-        this.meshbluHttp.createSubscription = sinon.stub().yields()
-        this.sut.run(done)
-      })
-
-      beforeEach('emit rotateRight', function() {
-        this.meshbluFirehose.emit('message', { data: { data: { action: 'rotateRight' } } })
-      })
-
-      it('should call <apiURL>/next', function(done) {
-        this.apiNext.wait(1000, done)
-      })
-    })
-
-    describe('when a rotateLeft broadcast message comes in through the firehose', function() {
-      beforeEach('setup <apiURL>/previous endpoint and call run', function(done) {
-        this.apiPrevious = this.api.post('/previous').reply(204)
-        this.meshbluHttp.whoami = sinon.stub().yields(null, {
-          uuid: 'connector-uuid',
-          options: {
-            apiURL: `http://localhost:${this.api.address().port}`,
-          },
-        })
-        this.meshbluHttp.createSubscription = sinon.stub().yields()
-        this.sut.run(done)
-      })
-
-      beforeEach('emit rotateLeft', function() {
-        this.meshbluFirehose.emit('message', { data: { data: { action: 'rotateLeft' } } })
-      })
-
-      it('should call <apiURL>/next', function(done) {
-        this.apiPrevious.wait(1000, done)
-      })
-    })
-
-    describe('when a click broadcast message comes in through the firehose', function() {
-      beforeEach('call run', function(done) {
-        this.meshbluHttp.whoami = sinon.stub().yields(null, {
-          uuid: 'connector-uuid',
-          options: {
-            apiURL: `http://localhost:${this.api.address().port}`,
-          },
-        })
-        this.meshbluHttp.createSubscription = sinon.stub().yields()
-        this.sut.run(done)
-      })
-
-      beforeEach('emit rotateLeft', function() {
-        this.meshbluFirehose.emit('message', { data: { data: { action: 'click' } } })
-      })
-
-      it('should not call the api', function() {
       })
     })
 
@@ -156,7 +65,6 @@ describe('Connector', function() {
         this.meshbluHttp.whoami = sinon.stub().yields(null, {
           uuid: 'connector-uuid',
           options: {
-            apiURL: `http://localhost:${this.api.address().port}`,
             commands: {
               startSkype: 'echo "foooo"',
             },
@@ -181,7 +89,6 @@ describe('Connector', function() {
         this.meshbluHttp.whoami = sinon.stub().yields(null, {
           uuid: 'connector-uuid',
           options: {
-            apiURL: `http://localhost:${this.api.address().port}`,
             commands: {
               endSkype: 'echo "baaar"',
             },
@@ -197,6 +104,30 @@ describe('Connector', function() {
 
       it('should run the endSkype command', function() {
         expect(this.child_process.exec).to.have.been.calledWith('echo "baaar"')
+      })
+    })
+
+    describe('when a rotateLeft message is emitted by the websocket', function() {
+      beforeEach('run sut', function(done) {
+        this.meshbluHttp.whoami = sinon.stub().yields(null, {
+          uuid: 'connector-uuid',
+          options: {
+            buttonUrl: `ws://localhost:${this.websocketPort}`,
+            rotatorUrls: {
+              rotateLeft: `http://localhost:${this.api.address().port}/previous`,
+            },
+          },
+        })
+        this.apiPrevious = this.api.post('/previous').reply(201)
+        this.sut.run(done)
+      })
+
+      beforeEach('emit "rotateLeft"', function() {
+        this.wss.clients.forEach(client => client.send('{"data":{"action": "rotateLeft"}}'))
+      })
+
+      it('should make a post to /previous', function(done) {
+        this.apiPrevious.wait(1000, done)
       })
     })
   })
