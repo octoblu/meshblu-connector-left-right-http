@@ -1,10 +1,13 @@
 {
   "name": "meshblu-connector-left-right-http",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "main": "command.js",
   "repository": "git@github.com:octoblu/meshblu-connector-left-right-http.git",
   "author": "sqrtofsaturn <sqrtofsaturn@gmail.com>",
   "license": "MIT",
+  "bin": {
+    "meshblu-connector-left-right-http": "command.js"
+  },
   "scripts": {
     "lint": "eslint .",
     "start": "node command.js",
@@ -12,20 +15,20 @@
     "test:watch": "mocha --growl --watch"
   },
   "dependencies": {
-    "async": "^2.4.1",
+    "async": "^2.5.0",
     "debug": "^2.6.8",
     "lodash": "^4.17.4",
     "meshblu-config": "^8.0.1",
-    "meshblu-firehose-socket.io": "^4.0.0",
+    "meshblu-firehose-socket.io": "^4.0.2",
     "meshblu-http": "^10.0.4",
     "request": "^2.81.0",
     "ws": "^3.0.0"
   },
   "devDependencies": {
     "chai": "^4.0.2",
-    "eslint": "^4.0.0",
+    "eslint": "^4.1.1",
     "eslint-config-airbnb-base": "^11.2.0",
-    "eslint-plugin-import": "^2.3.0",
+    "eslint-plugin-import": "^2.6.0",
     "eslint-plugin-node": "^5.1.0",
     "mocha": "^3.4.2",
     "portfinder": "^1.0.13",
