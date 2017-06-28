@@ -2,7 +2,7 @@ module.exports =
   title: "Default Configuration"
   type: "object"
   properties:
-    options:
+    leftRightOptions:
       title: "Options"
       type: "object"
       properties:
@@ -24,4 +24,3 @@ module.exports =
           default:
             rotateLeft: 'http://localhost:5050/previous'
             rotateRight: 'http://localhost:5050/next'
-            

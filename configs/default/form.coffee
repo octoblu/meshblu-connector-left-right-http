@@ -1,5 +1,5 @@
 module.exports = angular: [
-  { key: 'options.buttonUrl' }
-  { key: 'options.commands' }
-  { key: 'options.rotatorUrls' }
+  { key: 'leftRightOptions.buttonUrl' }
+  { key: 'leftRightOptions.commands' }
+  { key: 'leftRightOptions.rotatorUrls' }
 ]

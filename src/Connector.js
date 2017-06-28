@@ -32,7 +32,7 @@ class Connector {
 
   _startMinimizer(device, callback) {
     const { child_process, meshbluFirehose, meshbluHttp } = this
-    const { commands } = getOr({}, 'options', device)
+    const { commands } = getOr({}, 'leftRightOptions', device)
     const deviceId = device.uuid
 
     if (!commands) return callback()
@@ -42,7 +42,7 @@ class Connector {
   }
 
   _startRotator(device, callback) {
-    const { buttonUrl, rotatorUrls } = getOr({}, 'options', device)
+    const { buttonUrl, rotatorUrls } = getOr({}, 'leftRightOptions', device)
 
     if (!buttonUrl || !rotatorUrls) return callback()
 

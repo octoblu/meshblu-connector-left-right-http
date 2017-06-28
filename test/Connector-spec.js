@@ -64,7 +64,7 @@ describe('Connector', function() {
         this.child_process.exec = sinon.stub()
         this.meshbluHttp.whoami = sinon.stub().yields(null, {
           uuid: 'connector-uuid',
-          options: {
+          leftRightOptions: {
             commands: {
               startSkype: 'echo "foooo"',
             },
@@ -88,7 +88,7 @@ describe('Connector', function() {
         this.child_process.exec = sinon.stub()
         this.meshbluHttp.whoami = sinon.stub().yields(null, {
           uuid: 'connector-uuid',
-          options: {
+          leftRightOptions: {
             commands: {
               endSkype: 'echo "baaar"',
             },
@@ -111,7 +111,7 @@ describe('Connector', function() {
       beforeEach('run sut', function(done) {
         this.meshbluHttp.whoami = sinon.stub().yields(null, {
           uuid: 'connector-uuid',
-          options: {
+          leftRightOptions: {
             buttonUrl: `ws://localhost:${this.websocketPort}`,
             rotatorUrls: {
               rotateLeft: `http://localhost:${this.api.address().port}/previous`,
