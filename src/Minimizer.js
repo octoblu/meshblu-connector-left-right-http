@@ -26,11 +26,12 @@ class Minimizer {
   }
 
   _onMessage(message) {
+    debug('_onMessage: ', JSON.stringify(message, null, 2))
     const action = get('data.data.action', message)
     const command = get(action, this.commands)
     if (isEmpty(command)) return
 
-    debug('_onMessage', JSON.stringify({ action, command }, null, 2))
+    debug('_exec', JSON.stringify({ action, command }, null, 2))
     this.child_process.exec(command)
   }
 
