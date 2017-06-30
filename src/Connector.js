@@ -1,4 +1,5 @@
 const async = require('async')
+const debug = require('debug')('meshblu-connector-left-right-http:Connector')
 const bindAll = require('lodash/fp/bindAll')
 const getOr = require('lodash/fp/getOr')
 
@@ -19,6 +20,7 @@ class Connector {
   }
 
   run(callback) {
+    debug('run')
     this.meshbluFirehose.connect()
     this.meshbluHttp.whoami((error, device) => {
       if (error) return callback
@@ -35,7 +37,10 @@ class Connector {
     const { commands } = getOr({}, 'leftRightOptions', device)
     const deviceId = device.uuid
 
-    if (!commands) return callback()
+    if (!commands) {
+      debug('no commands found, skipping Minimizer')
+      return callback()
+    }
 
     const minimizer = new Minimizer({ child_process, commands, deviceId, meshbluFirehose, meshbluHttp })
     minimizer.run(callback)
@@ -44,7 +49,10 @@ class Connector {
   _startRotator(device, callback) {
     const { buttonUrl, rotatorUrls } = getOr({}, 'leftRightOptions', device)
 
-    if (!buttonUrl || !rotatorUrls) return callback()
+    if (!buttonUrl || !rotatorUrls) {
+      debug('Could not find buttonUrl or rotatorUrls, skipping Rotator')
+      return callback()
+    }
 
     const rotator = new Rotator({ urls: rotatorUrls, websocketUrl: buttonUrl })
     rotator.run(callback)
