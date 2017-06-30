@@ -31,3 +31,4 @@ schemas.json
 data.json
 meshblu.json
 pkg-config.json
+.env
