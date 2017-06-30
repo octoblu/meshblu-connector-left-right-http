@@ -1,6 +1,6 @@
 {
   "name": "meshblu-connector-left-right-http",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "main": "command.js",
   "repository": "git@github.com:octoblu/meshblu-connector-left-right-http.git",
   "author": "sqrtofsaturn <sqrtofsaturn@gmail.com>",
