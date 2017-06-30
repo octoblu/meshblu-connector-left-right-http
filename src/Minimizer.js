@@ -32,7 +32,9 @@ class Minimizer {
     if (isEmpty(command)) return
 
     debug('_exec', JSON.stringify({ action, command }, null, 2))
-    this.child_process.exec(command)
+    this.child_process.exec(command, (error, stdout, stderr) => {
+      debug('_exec result:', JSON.stringify({ command, stdout, stderr, error: (error || null) }))
+    })
   }
 
   _subscribeToSelfMessageReceived(callback) {
